@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ chat_user.username }}</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chatbox-container {
+            width: 400px;
+            background-color: #282828;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .chatbox-header {
+            padding: 15px;
+            background-color: #1e1e1e;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .chatbox-header h3 {
+            color: #4caf50;
+            margin: 0;
+        }
+
+        .chatbox-messages {
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+        }
+
+        .chatbox-message {
+            margin-bottom: 15px;
+        }
+
+        .chatbox-message .username {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .chatbox-message .text {
+            margin-top: 5px;
+            background-color: #323232;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .chatbox-input {
+            padding: 15px;
+            background-color: #1e1e1e;
+            display: flex;
+            border-top: 1px solid #333;
+        }
+
+        .chatbox-input input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            background-color: #282828;
+            color: #f0f0f0;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+        }
+
+        .chatbox-input button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .chatbox-input button:hover {
+            background-color: #43a047;
+        }
+        button {
+            background-color: #4caf50; /* Green buttons */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #43a047; /* Darker green for hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbox-container">
+        <div class="chatbox-header">
+            <h3>Chat with {{ chat_user.username }}</h3>
+            <a href="{% url 'feed:index' %}">
+                <button>Home</button>
+            </a>
+        </div>
+
+        <div class="chatbox-messages">
+            {% for message in messages %}
+                <div class="chatbox-message">
+                    <div class="username">{{ message.sender.username }}</div>
+                    <div class="text">{{ message.content }}</div>
+                </div>
+            {% empty %}
+                <p>No messages yet.</p>
+            {% endfor %}
+        </div>
+
+        <div class="chatbox-input">
+            <form method="post" action="{% url 'message:chat' recipient_id=chat_user.id %}">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="Type a message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

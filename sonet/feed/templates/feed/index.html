@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonet</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212; /* Dark background */
+            color: #e0e0e0; /* Light text for contrast */
+            font-family: Arial, sans-serif;
+        }
+    
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+    
+        .top-section {
+            background-color: #282a2e; /* Darker shade for the header */
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-bottom: 1px solid #333; /* Subtle border */
+        }
+    
+        .top-section button {
+            background-color: rgb(50, 121, 53); /* Faded green */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    
+        .top-section button:hover {
+            background-color: rgb(50, 121, 53); /* Slightly darker green for hover */
+        }
+    
+        .content-section {
+            display: flex;
+            flex: 1;
+        }
+    
+        .left-section, .right-section {
+            background-color: #1e1e1e; /* Dark sidebar background */
+            padding: 20px;
+            color: #e0e0e0; /* Light text */
+            width: 20%;
+        }
+    
+        .left-section {
+            border-right: 1px solid #333; /* Adds subtle border between left and main sections */
+        }
+    
+        .right-section {
+            border-left: 1px solid #333;
+        }
+    
+        .middle-section {
+            flex: 1;
+            overflow-y: scroll;
+            padding: 20px;
+            background-color: #181818; /* Dark background for the feed */
+            color: #e0e0e0;
+        }
+    
+        .post {
+            background-color: #232323; /* Slightly lighter than middle-section */
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+    
+        .post .username {
+            font-weight: bold;
+            color: #4caf50; /* Faded green for usernames */
+        }
+    
+        .post .content {
+            margin-top: 10px;
+        }
+    
+        .post .created-at {
+            color: #a0a0a0; /* Soft gray for timestamps */
+            font-size: 12px;
+        }
+    
+        .like-button, .comment-button {
+            margin-top: 10px;
+            cursor: pointer;
+            padding: 5px;
+            background-color: #4caf50; /* Faded green buttons */
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+    
+        .like-button:hover, .comment-button:hover {
+            background-color: #43a047; /* Darker green on hover */
+        }
+    
+        .comment-form {
+            margin-top: 10px;
+        }
+    
+        .comment-form textarea {
+            width: 100%;
+            padding: 5px;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border: 1px solid #4caf50; /* Green border for input */
+            border-radius: 3px;
+        }
+    
+        .comment-form textarea::placeholder {
+            color: #a0a0a0; /* Placeholder color */
+        }
+    
+        a {
+            color: #4caf50; /* Faded green links */
+            text-decoration: none;
+        }
+    
+        a:hover {
+            color: #43a047; /* Darker green on hover */
+        }
+    
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+    
+        ul li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #232323; /* Greenish cards like before */
+            border-radius: 5px;
+            color: #e0e0e0;
+        }
+    
+        ul li a {
+            color: #4caf50; /* Green for links */
+        }
+    
+        ul li a:hover {
+            color: #43a047; /* Darker green on hover */
+        }
+    </style>
+    
+    
+</head>
+<body>
+    {% if user.is_authenticated %}
+        <div class="container">
+            <!-- Top section with profile, logout buttons, and create post form -->
+            <div class="top-section">
+                <!-- Username and Profile link -->
+                <a href="{% url 'account:profile' username=user.username %}">
+                    <h1>{{ user.username }}</h1>
+                </a>
+
+                <!-- Profile and Logout buttons -->
+                <a href="{% url 'account:profile' username=user.username %}">
+                    <button>Profile</button>
+                </a>
+                <a href="{% url 'logout' %}">
+                    <button>Logout</button>
+                </a>
+            </div>
+
+            <!-- Main content section -->
+            <div class="content-section">
+                <!-- Left section: Following users -->
+                <div class="left-section">
+                    <h2>Following</h2>
+                    <ul>
+                        {% for follow in followed_users %}
+                            <li>
+                                <a href="{% url 'account:profile' username=follow.following.username %}">
+                                    {{ follow.following.username }}
+                                </a>
+                            </li>
+                        {% empty %}
+                            <p>You are not following anyone yet.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Middle section: Posts feed -->
+                <div class="middle-section">
+                    <!-- Create post form -->
+                <form method="post" action="{% url 'post:create_post' %}">
+                    {% csrf_token %}
+                    <input type="text" name="content" placeholder="What's on your mind?" required>
+                    <button type="submit">Post</button>
+                </form>
+                    <!-- Loop through the posts and display each post -->
+                    {% for post in posts %}
+                        <div class="post">
+                            <div class="username">{{ post.user.username }}</div>
+                            <div class="created-at">{{ post.created_at }}</div>
+                            <div class="content">{{ post.content }}</div>
+
+                            <!-- Like button form -->
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="like_post_id" value="{{ post.id }}">
+                                <button type="submit" class="like-button">
+                                    {% if post.is_liked %}
+                                        Unlike
+                                    {% else %}
+                                        Like
+                                    {% endif %}
+                                    ({{ post.likes.count }})
+                                </button>
+                            </form>
+
+                            <!-- Comment form -->
+                            <div class="comment-form">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="comment_post_id" value="{{ post.id }}">
+                                    <textarea name="comment_content" placeholder="Add a comment"></textarea>
+                                    <button type="submit" class="comment-button">Comment</button>
+                                </form>
+                            </div>
+
+                            <!-- Display comments -->
+                            <div class="comments">
+                                <h4>Comments:</h4>
+                                {% for comment in post.comments.all %}
+                                    <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+                                {% empty %}
+                                    <p>No comments yet.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No posts to show.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Right section: Messages link -->
+                <div class="right-section">
+                    <h2>Following</h2>
+                    <ul>
+                        {% for follow in followed_users %}
+                            <li>
+                                <a href="{% url 'message:chat' recipient_id=follow.following.id %}">
+                                    {{ follow.following.username }}
+                                </a>                                
+                            </li>
+                        {% empty %}
+                            <p>You are not following anyone yet.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    {% else %}
+        <h1>You are not authenticated</h1>
+    {% endif %}
+</body>
+
+</html>
