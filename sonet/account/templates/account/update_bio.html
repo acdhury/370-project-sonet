@@ -1,0 +1,82 @@
+<!-- update_bio.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Bio</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            padding: 20px;
+            margin: auto;
+            max-width: 800px;
+        }
+        input[type="text"],
+        textarea {
+            width: 60%;
+            height: 10%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #43a047; /* Darker green on focus */
+            outline: none;
+        }
+
+        h1 {
+            color: #4caf50;
+            text-align: center;
+        }
+        form {
+            background-color: #282828;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #43a047;
+        }
+        a {
+            color: #4caf50;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Update Your Bio</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+    <a href="{% url 'account:profile' username=request.user.username %}">Back to Profile</a>
+
+</body>
+</html>

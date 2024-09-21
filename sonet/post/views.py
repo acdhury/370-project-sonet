@@ -49,3 +49,33 @@ def post_detail(request, post_id):
     comments = post.comments.all()  # Get all comments on this post
     form = CommentForm()
     return render(request, 'post/post_detail.html', {'post': post, 'comments': comments, 'form': form})
+
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure only the owner can delete the post
+    if request.user == post.user:
+        post.delete()
+        return redirect('account:profile', username=request.user.username)
+    else:
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def update_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # Ensure only the owner can update the post
+    if request.user != post.user:
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('account:profile', username=request.user.username)
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, 'post/update_post.html', {'form': form})

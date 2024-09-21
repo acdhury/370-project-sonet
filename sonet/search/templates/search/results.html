@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Sonet</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212; /* Dark background */
+            color: #e0e0e0; /* Light text for contrast */
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .top-section {
+            background-color: #282a2e; /* Darker header */
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .top-section form {
+            display: flex;
+        }
+
+        .top-section input[type="text"] {
+            padding: 8px;
+            border-radius: 3px;
+            border: none;
+            margin-right: 10px;
+            width: 300px;
+        }
+
+        .top-section button {
+            background-color: rgb(50, 121, 53); /* Green button */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .top-section button:hover {
+            background-color: rgb(50, 121, 53); /* Slightly darker green */
+        }
+
+        .content-section {
+            display: flex;
+            flex: 1;
+        }
+
+        .results-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #181818; /* Dark background for the content */
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .results-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .scrollable ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .scrollable li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #232323; /* Slightly lighter background for items */
+            border-radius: 5px;
+        }
+
+        .scrollable li a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        .scrollable li a:hover {
+            color: #43a047;
+        }
+
+        .post-item {
+            background-color: #232323;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .post-item .username {
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .post-item .content {
+            margin-top: 10px;
+        }
+
+        .post-item .created-at {
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+
+        h1{
+            color: #43a047;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top section with search bar -->
+        <div class="top-section">
+            <a href="{% url 'feed:index' %}">
+                <h1>Home</h1>
+            </a>
+            <form action="{% url 'search_results' %}" method="GET">
+                <input type="text" name="q" placeholder="Search for users or posts..." value="{{ query }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- Content section: Search results -->
+        <div class="content-section">
+            <!-- Users Section -->
+            <div class="results-section">
+                <h2>Users</h2>
+                <div class="scrollable">
+                    <ul>
+                        {% if users %}
+                            {% for user in users %}
+                                <li>
+                                    <a href="{% url 'account:profile' username=user.username %}">
+                                        {{ user.username }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <p>No users found.</p>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Posts Section -->
+                <h2>Posts</h2>
+                <div class="scrollable">
+                    {% if posts %}
+                        {% for post in posts %}
+                            <div class="post-item">
+                                <div class="username">{{ post.user.username }}</div>
+                                <div class="created-at">{{ post.created_at }}</div>
+                                <div class="content">{{ post.content }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No posts found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

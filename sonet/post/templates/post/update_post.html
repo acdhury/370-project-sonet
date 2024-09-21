@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Post</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            padding: 20px;
+            margin: auto;
+            max-width: 600px;
+            background-color: #282828;
+            border-radius: 10px;
+        }
+        h1 {
+            color: #4caf50;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        textarea {
+            background-color: #1e1e1e;
+            color: white;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #43a047;
+        }
+        .back-button {
+            background-color: #f44336;
+            text-align: center;
+        }
+        .back-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Your Post</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Update Post</button>
+        </form>
+        <a href="{% url 'account:profile' request.user.username %}">
+            <button class="back-button">Cancel</button>
+        </a>
+    </div>
+</body>
+</html>

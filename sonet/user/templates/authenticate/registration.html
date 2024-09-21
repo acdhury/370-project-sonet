@@ -93,11 +93,7 @@
     <div class="container">
         <div class="form-container">
             <h1>Register</h1>
-            {% if messages %}
-                {% for message in messages %}
-                    <p class="error">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
+            
             <form action="{% url 'register' %}" method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}

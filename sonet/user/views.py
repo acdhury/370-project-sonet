@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .forms import SignUpForm
 
 
 # Create your views here.
@@ -32,21 +33,19 @@ def log_out(request):
 
 
 def register_user(request):
-    form = UserCreationForm(request.POST or None)
-    
     if request.method == "POST":
+        form = SignUpForm(request.POST)
         if form.is_valid():
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
             
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password1"] 
 
-            if User.objects.filter(username=username).exists():  # Corrected line
-                messages.error(request, "This user already exists")
-                return redirect("register")
-            
-            user = form.save()
+            # Authenticate and log the user in
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
             user = authenticate(request, username=username, password=password)
-            
+
             if user is not None:
                 login(request, user)
                 return redirect('feed:index')
@@ -55,6 +54,8 @@ def register_user(request):
                 return redirect('login')
         else:
             messages.error(request, "Form is not valid")
-            return redirect('register') 
-    
+            return redirect('register')
+    else:
+        form = SignUpForm()
+
     return render(request, "authenticate/registration.html", {'form': form})

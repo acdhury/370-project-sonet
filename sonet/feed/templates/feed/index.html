@@ -23,23 +23,68 @@
             background-color: #282a2e; /* Darker shade for the header */
             padding: 10px 20px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between; /* Align items to the left and right */
             align-items: center;
             border-bottom: 1px solid #333; /* Subtle border */
         }
+        
+        .top-right {
+    display: flex;
+    align-items: center;
+}
+
+.top-right button {
+    background-color: rgb(50, 121, 53); /* Faded green */
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 12px; /* Compact padding */
+    cursor: pointer;
+    margin-left: 10px; /* Adjust margin to the left */
+}
+
+.top-right button:hover {
+    background-color: #43a047; /* Darker green for hover */
+}
+
+    
+        .top-section form {
+            display: flex;
+            align-items: center;
+        }
+    
+        .top-section form {
+            display: flex;
+            align-items: center;
+            flex: 1; /* Make the search box take up available space */
+            justify-content: center; /* Center the search box */
+            margin-right: 10px;
+        }
+
+        .top-section input[type="text"] {
+            padding: 8px;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border: 1px solid #4caf50; /* Green border for input */
+            border-radius: 3px;
+            width: 300px; /* Adjust width as needed */
+            padding-left: 10px;
+            margin-top: 10px;
+        }
+
     
         .top-section button {
             background-color: rgb(50, 121, 53); /* Faded green */
             color: white;
             border: none;
             border-radius: 3px;
-            padding: 10px 15px;
-            margin-left: 10px;
+            padding: 8px 12px; /* Compact padding */
             cursor: pointer;
+            margin-left: 10px;
         }
     
         .top-section button:hover {
-            background-color: rgb(50, 121, 53); /* Slightly darker green for hover */
+            background-color: #43a047; /* Darker green for hover */
         }
     
         .content-section {
@@ -91,12 +136,17 @@
             color: #a0a0a0; /* Soft gray for timestamps */
             font-size: 12px;
         }
-    
+        .profile-pic {
+            width: 50px; /* Adjust size as needed */
+            height: 50px; /* Adjust size as needed */
+            border-radius: 50%; /* Circular image */
+            margin-right: 10px; /* Space between image and text */
+        }
         .like-button, .comment-button {
             margin-top: 10px;
             cursor: pointer;
-            padding: 5px;
-            background-color: #4caf50; /* Faded green buttons */
+            padding: 10px 15px;
+            background-color: rgb(50, 121, 53); /* Faded green buttons */
             color: white;
             border: none;
             border-radius: 3px;
@@ -106,20 +156,19 @@
             background-color: #43a047; /* Darker green on hover */
         }
     
-        .comment-form {
-            margin-top: 10px;
-        }
-    
-        .comment-form textarea {
+        .comment-form textarea,
+        input[type="text"] {
             width: 100%;
-            padding: 5px;
+            padding: 10px;
             background-color: #1e1e1e;
             color: #e0e0e0;
             border: 1px solid #4caf50; /* Green border for input */
             border-radius: 3px;
+            box-sizing: border-box; /* Ensure padding is included in width */
         }
     
-        .comment-form textarea::placeholder {
+        .comment-form textarea::placeholder,
+        input[type="text"]::placeholder {
             color: #a0a0a0; /* Placeholder color */
         }
     
@@ -152,28 +201,39 @@
         ul li a:hover {
             color: #43a047; /* Darker green on hover */
         }
+
+        hr {
+            color: #43a047;
+        }
     </style>
+    
+    
     
     
 </head>
 <body>
     {% if user.is_authenticated %}
         <div class="container">
-            <!-- Top section with profile, logout buttons, and create post form -->
+            <!-- Top section with profile, logout buttons, search box, and create post form -->
+            
             <div class="top-section">
-                <!-- Username and Profile link -->
-                <a href="{% url 'account:profile' username=user.username %}">
-                    <h1>{{ user.username }}</h1>
-                </a>
-
+                <!-- Search form -->
+                <form action="{% url 'search_results' %}" method="GET">
+                    <input type="text" name="q" placeholder="Search for users or posts...">
+                    <button type="submit" class="like-button">Search</button>
+                </form>
+                
                 <!-- Profile and Logout buttons -->
-                <a href="{% url 'account:profile' username=user.username %}">
-                    <button>Profile</button>
-                </a>
-                <a href="{% url 'logout' %}">
-                    <button>Logout</button>
-                </a>
+                <div class="top-right">
+                    <a href="{% url 'account:profile' username=user.username %}">
+                        <h1>{{ user.first_name }}</h1>
+                    </a>
+                    <a href="{% url 'logout' %}">
+                        <button>Logout</button>
+                    </a>
+                </div>
             </div>
+            
 
             <!-- Main content section -->
             <div class="content-section">
@@ -184,7 +244,7 @@
                         {% for follow in followed_users %}
                             <li>
                                 <a href="{% url 'account:profile' username=follow.following.username %}">
-                                    {{ follow.following.username }}
+                                    {{ follow.following.first_name }} {{ follow.following.last_name }}
                                 </a>
                             </li>
                         {% empty %}
@@ -196,11 +256,12 @@
                 <!-- Middle section: Posts feed -->
                 <div class="middle-section">
                     <!-- Create post form -->
-                <form method="post" action="{% url 'post:create_post' %}">
-                    {% csrf_token %}
-                    <input type="text" name="content" placeholder="What's on your mind?" required>
-                    <button type="submit">Post</button>
-                </form>
+                    <form method="post" action="{% url 'post:create_post' %}" class="comment-form">
+                        {% csrf_token %}
+                        <input type="text" name="content" placeholder="What's on your mind?" required>
+                        <button type="submit" class="like-button">Post</button>
+                    </form>
+                    <hr>
                     <!-- Loop through the posts and display each post -->
                     {% for post in posts %}
                         <div class="post">
@@ -236,7 +297,7 @@
                             <div class="comments">
                                 <h4>Comments:</h4>
                                 {% for comment in post.comments.all %}
-                                    <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+                                    <p><strong>{{ comment.user.first_name }}:</strong> {{ comment.content }}</p>
                                 {% empty %}
                                     <p>No comments yet.</p>
                                 {% endfor %}
@@ -249,25 +310,26 @@
 
                 <!-- Right section: Messages link -->
                 <div class="right-section">
-                    <h2>Following</h2>
+                    <h2>Messages</h2>
                     <ul>
                         {% for follow in followed_users %}
                             <li>
                                 <a href="{% url 'message:chat' recipient_id=follow.following.id %}">
-                                    {{ follow.following.username }}
+                                    {{ follow.following.first_name }} {{ follow.following.last_name }}
                                 </a>                                
                             </li>
                         {% empty %}
-                            <p>You are not following anyone yet.</p>
+                            <p>You have no messages yet.</p>
                         {% endfor %}
                     </ul>
                 </div>
-                
             </div>
         </div>
     {% else %}
-        <h1>You are not authenticated</h1>
+        <!-- Content for unauthenticated users -->
+        <h1>Please <a href="{% url 'login' %}">login</a> to see your feed.</h1>
     {% endif %}
 </body>
+</html>
 
 </html>
